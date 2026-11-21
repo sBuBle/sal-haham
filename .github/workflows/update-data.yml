@@ -1,0 +1,88 @@
+# עדכון מחירים ופריסה ל-GitHub Pages.
+#
+# שימו לב: חלק מפורטלי המחירים עלולים לחסום כתובות IP מחוץ לישראל (ה-runners של GitHub
+# נמצאים בארה"ב/אירופה). אם האיסוף נכשל כאן, הריצו runner בישראל (self-hosted) או את
+# `bun run update` ממחשב ביתי ודחפו את data/ (ראו README).
+name: update-data
+
+on:
+  # ריצה אוטומטית 3 פעמים ביום: הסירו את ה-# משתי השורות הבאות אחרי שהפעלתם GitHub Pages
+  # schedule:
+  #   - cron: "15 3,9,15 * * *" # 05:15 / 11:15 / 17:15 שעון ישראל (חורף)
+  workflow_dispatch:
+    inputs:
+      chains:
+        description: "רשימת רשתות (ריק = כל הנתמכות)"
+        required: false
+      city:
+        description: "רק עיר אחת (לבדיקה)"
+        required: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ${{ vars.RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - run: bun install --frozen-lockfile
+
+      # מסד ה-DuckDB נשמר בין ריצות (בשביל היסטוריית המחירים)
+      - uses: actions/cache/restore@v4
+        with:
+          path: data/prices.duckdb
+          key: prices-db-${{ github.run_id }}
+          restore-keys: prices-db-
+
+      - name: City codes (CBS)
+        run: test -f data/ref/cities.json || bun run cities
+
+      - name: Collect, ingest, export
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.chains }}" ]; then ARGS="$ARGS --chains ${{ inputs.chains }}"; fi
+          if [ -n "${{ inputs.city }}" ]; then ARGS="$ARGS --city ${{ inputs.city }}"; fi
+          bun run update $ARGS
+        env:
+          DUCKDB_MEMORY_LIMIT: 2GB
+
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: data/prices.duckdb
+          key: prices-db-${{ github.run_id }}
+
+      - name: Build site
+        run: |
+          bun run selfhost-duckdb
+          VITE_DUCKDB_EXT_REPO=./duckdb/ext bun run build
+        env:
+          # כתובות נקיות (/product/…) צריכות את תיקיית האתר: ב-GitHub Pages של פרויקט זו /<שם-המאגר>/.
+          # עם דומיין משלכם: הגדירו משתנה מאגר SITE_BASE_PATH=/ ו-SITE_URL=https://הכתובת
+          BASE_PATH: ${{ vars.SITE_BASE_PATH || format('/{0}/', github.event.repository.name) }}
+          VITE_PUBLIC_URL: ${{ vars.SITE_URL || format('https://{0}.github.io/{1}/', github.repository_owner, github.event.repository.name) }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: update
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

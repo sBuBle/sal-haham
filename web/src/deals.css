@@ -1,0 +1,29 @@
+/* מבצעים: תג, מחיר מבצע, מחיר רגיל מחוק. משתמש בצבעי המערכת (styles.css). */
+.tag.deal { background: var(--neg-soft); color: var(--neg); }
+.tag.deal.club { background: var(--warn-soft); color: var(--warn); }
+.tag.deal .ic { flex: none; }
+.price.sale { color: var(--neg); }
+.was { color: var(--muted); text-decoration: line-through; font-size: var(--t-small); font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.deal-info { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.deal-info small { font-size: var(--t-small); }
+
+/* כרטיס מוצר */
+.pc-deal { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
+.pc-deal .tag { white-space: normal; text-align: start; }
+
+/* דף מוצר: שורת סניף */
+.price-rows .pr-deal { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-top: 2px; }
+.pp-main .was { margin-inline-start: 6px; }
+.pp-deal { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+/* השוואה: שורות הסל בסניף, הטבלה, עובדות הסניף */
+.lines .row .deal-info { margin-inline-start: 6px; }
+.lines .row .was { margin-inline-end: 6px; }
+.fact.deal { color: var(--neg); }
+.cmp-table td .deal-mark { display: block; font-size: var(--t-micro); color: var(--neg); font-weight: 500; }
+.cmp-table td.cheap .deal-mark { color: inherit; }
+.club-toggle { margin-top: var(--s3); }
+
+/* סל */
+.cr-deal { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+.cr-deal small { font-size: var(--t-small); }

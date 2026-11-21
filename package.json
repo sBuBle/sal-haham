@@ -1,0 +1,43 @@
+{
+  "name": "sal-haham",
+  "version": "0.1.0",
+  "description": "סל חכם — השוואת מחירי סל קניות בין סניפים בעיר שבחרת (PWA, בלי שרת)",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "cities": "bun scripts/fetch-cities.ts",
+    "collect": "bun src/collect/cli.ts",
+    "ingest": "bun src/ingest/cli.ts",
+    "export": "bun src/ingest/export-cli.ts",
+    "update": "bun scripts/update.ts",
+    "synthetic": "bun scripts/gen-synthetic.ts",
+    "demo-data": "bun scripts/demo-data.ts",
+    "dev": "vite web",
+    "build": "vite build web",
+    "preview": "vite preview web --port 4173",
+    "icons": "bun scripts/make-icons.ts",
+    "selfhost-duckdb": "bun scripts/selfhost-duckdb.ts",
+    "test": "bun test tests",
+    "test:memory": "bun scripts/memtest.ts",
+    "e2e": "playwright test",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@duckdb/duckdb-wasm": "1.33.1-dev57.0",
+    "@duckdb/node-api": "2.0.0-r.1",
+    "@zxing/browser": "^0.2.1",
+    "fflate": "^0.8.3",
+    "iconv-lite": "^0.7.3",
+    "preact": "^11.2.0",
+    "saxes": "^6.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@preact/preset-vite": "^2.10.6",
+    "@types/bun": "latest",
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
+  }
+}
